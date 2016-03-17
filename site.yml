@@ -1,0 +1,36 @@
+---
+
+- hosts: vpn
+  roles:
+    - tinc
+
+- hosts: removevpn
+  roles:
+    - tinc-remove
+
+- hosts: elasticsearch_master_nodes
+  roles:
+    - { role: elasticsearch, es_instance_name: "node1", es_config: { discovery.zen.ping.unicast.hosts: "node01, node02, node03", network.host: "_tun0_, _local_", cluster.name: "production", discovery.zen.ping.multicast.enabled: false,  http.port: 9200, transport.tcp.port: 9300, node.data: false, node.master: true, bootstrap.mlockall: true } }
+  vars:
+    es_major_version: "2.x"
+    es_version: "2.2.1"
+    es_heap_size: "2g"
+    es_cluster_name: "production"
+
+- hosts: elasticsearch_master_data_nodes
+  roles:
+    - { role: elasticsearch, es_instance_name: "node1", es_config: { discovery.zen.ping.unicast.hosts: "node01, node02, node03", network.host: "_tun0_, _local_", cluster.name: "production", discovery.zen.ping.multicast.enabled: false, http.port: 9200, transport.tcp.port: 9300, node.data: true, node.master: true, bootstrap.mlockall: true } }
+  vars:
+    es_major_version: "2.x"
+    es_version: "2.2.1"
+    es_heap_size: "2g"
+    es_cluster_name: "production"
+
+- hosts: elasticsearch_data_nodes
+  roles:
+    - { role: elasticsearch, es_instance_name: "node1", es_config: { discovery.zen.ping.unicast.hosts: "node01, node02, node03", network.host: "_tun0_, _local_", cluster.name: "production", discovery.zen.ping.multicast.enabled: false, http.port: 9200, transport.tcp.port: 9300, node.data: true, node.master: false, bootstrap.mlockall: true } }
+  vars:
+    es_major_version: "2.x"
+    es_version: "2.2.1"
+    es_heap_size: "2g"
+    es_cluster_name: "production"
